@@ -26,3 +26,11 @@ export interface IClientUser {
   address: IAddress;
   company: ICompany;
 }
+
+export interface IDebit {
+  id?: number;
+  userId: number;
+  reason: string;
+  debitDate: string;
+  debitValue: number;
+}
