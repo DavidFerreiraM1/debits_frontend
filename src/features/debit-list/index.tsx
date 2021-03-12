@@ -11,11 +11,15 @@ export function DebitList() {
     return users.find((usr: IClientUser) => usr.id === id);
   }
 
+  const [renderCondition, setRenderCondition] = React.useState(false);
+  React.useEffect(() => {
+    setRenderCondition(users.length > 0 && debits.length > 0);
+  }, [debits, users]);
 
   return (
     <List textSubHeader="Devedores">
       {
-        debits.map((deb: IDebit, key) => {
+        renderCondition && debits.map((deb: IDebit, key) => {
           const user: any = getUser(deb.userId);
           return (
             <ListItem

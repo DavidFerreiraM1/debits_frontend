@@ -1,11 +1,12 @@
 import React from 'react';
-import { Form, Formik } from 'formik';
+import { useFormik } from 'formik';
 import { Button, Grid, InputLabel, TextField as MuiTextFiled  } from '@material-ui/core';
 import AutoComplete from '@material-ui/lab/Autocomplete';
-import { TextInput } from '../../components/form/text-input';
+
 import { useDebitContext } from '../../context/app-context';
 import { IClientUser, IDebit } from '../../core/interfaces';
 import { createDebit } from './service';
+import { formatMoney } from '../../utils/form-data-format';
 
 export function DebitForm() {
   const { users: contextUsers, updateListDebits } = useDebitContext();
@@ -14,7 +15,7 @@ export function DebitForm() {
   const [userOptions, setUserOptions] = React.useState<{ label: string, value: number }[]>([]);
 
   React.useEffect(() => {
-    if(contextUsers.length) {
+    if(contextUsers.length > 0) {
       const options: any = contextUsers.map((user: IClientUser) => {
         return ({ label: user.name, value: user.id });
       });
@@ -37,62 +38,73 @@ export function DebitForm() {
       }
   };
 
+  const formik = useFormik({
+    initialValues: {
+      reason: '',
+      debitValue: 24568,
+      debitData: '',
+    },
+    onSubmit: (v) => {
+      console.log('SUBMIT', v);
+    }
+  });
+
   return (
-    <Formik
-      initialValues={{
-        reason: '',
-        debitValue: '',
-        debitData: '',
-      }}
-      onReset={(val) => {
-        val.debitData = ''
-      }}
-      onSubmit={(val) => {
-        postNewDebit({
-          reason: val.reason,
-          debitValue: parseInt(val.debitValue),
-          debitDate: val.debitData,
-          userId: user.value
-        });
-      }}
-    >
-      <Form>
-        <Grid container spacing={4}>
-          <Grid item xs={12}>
-            <InputLabel>User</InputLabel>
-            <AutoComplete
-              id="users"
-              options={userOptions}
-              getOptionLabel={(opt) => opt.label}
-              onChange={(event, { label, value }: any) => setUser({ label, value })}
-              renderInput={
-                (params) => <MuiTextFiled {...params} value={user} variant="outlined" fullWidth />
-              }
-            />
-          </Grid>
-          <Grid item xs={12}>
-          <InputLabel>Motivo</InputLabel>
-            <TextInput
-              name="reason"
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <InputLabel>Valor</InputLabel>
-            <TextInput
-              name="debitValue"
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <InputLabel>Data</InputLabel>
-            <TextInput
-              name="debitData"
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <Button type="submit">Ok</Button>
-          </Grid>
+    <form>
+      <Grid container spacing={4}>
+        <Grid item xs={12}>
+          <InputLabel>User</InputLabel>
+          <AutoComplete
+            id="users"
+            options={userOptions}
+            getOptionLabel={(opt) => opt.label}
+            onChange={(event, { label, value }: any) => setUser({ label, value })}
+            renderInput={
+              (params) => <MuiTextFiled {...params} value={user} variant="outlined" fullWidth />
+            }
+          />
         </Grid>
-      </Form>
-    </Formik>
+        <Grid item xs={12}>
+        <InputLabel>Motivo</InputLabel>
+          <MuiTextFiled
+            fullWidth
+            variant="outlined"
+            id="reason"
+            name="reason"
+            value={formik.values.reason}
+            onChange={formik.handleChange}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <InputLabel>Valor</InputLabel>
+          <MuiTextFiled
+            fullWidth
+            type="number"
+            variant="outlined"
+            id="debitValue"
+            name="debitValue"
+            value={formik.values.debitValue}
+            onChange={(event) => formik.setValues({
+              ...formik.values,
+              debitValue: parseFloat(event.target.value),
+            })}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <InputLabel>Data</InputLabel>
+          <MuiTextFiled
+            fullWidth
+            variant="outlined"
+            id="debitData"
+            name="debitData"
+            value={formik.values.debitData}
+            onChange={formik.handleChange}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <Button type="submit">Ok</Button>
+        </Grid>
+      </Grid>
+    </form>
   )
 }
