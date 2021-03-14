@@ -2,6 +2,7 @@ import React from 'react';
 
 import { useFormik } from 'formik';
 import { Button, FormHelperText, Grid, InputLabel, TextField as MuiTextFiled  } from '@material-ui/core';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import AutoComplete from '@material-ui/lab/Autocomplete';
 
 import 'date-fns';
@@ -17,6 +18,7 @@ import { IClientUser, IDebit } from '../../core/interfaces';
 import { createDebit } from './service';
 import { formatMoney } from '../../utils/form-data-format';
 import { debitFormValidation } from './validation';
+import { formStyles } from './styles';
 
 class BrLocalizeUtil extends DateFnsUtils {
   getDatePickerHeaderText(date: any) {
@@ -25,6 +27,36 @@ class BrLocalizeUtil extends DateFnsUtils {
 }
 
 export function DebitForm() {
+  const styles = formStyles();
+  const [renderAlert, setRenderAlert] = React.useState({
+    severity: 'success',
+    text: 'Dívida cadastrada com sucesso!',
+    render: false
+  });
+
+  const handlerRenderAlert = (
+    severity: 'success' | 'error',
+    text: string,
+  ) => {
+    setRenderAlert({
+      severity,
+      text,
+      render: true
+    });
+  }
+
+  React.useEffect(() => {
+    if (renderAlert.render) {
+      setTimeout(() => {
+        setRenderAlert({
+          ...renderAlert,
+          render: false
+        })
+      }, 1800)
+    }
+  }, [renderAlert]);
+
+
   const { users: contextUsers, updateListDebits } = useDebitContext();
   const [userOptions, setUserOptions] = React.useState<{ label: string, value: number }[]>([]);
 
@@ -57,11 +89,21 @@ export function DebitForm() {
   }, [contextUsers]);
 
   const postNewDebit = async (data: IDebit) => {
-      const res = await createDebit({...data});
+      const values: IDebit = {
+        ...data,
+        debitValue: parseFloat(data.debitValue
+          .toString()
+          .trim()
+          .replace('R$', '')
+          .replaceAll('.', '')
+          .replaceAll(',', '')),
+        debitDate: format(new Date(data.debitDate), 'yyyy-MM-dd')
+      }
+      const res = await createDebit({...values});
       if (!res.success) {
-        console.log('deu ruim');
+        handlerRenderAlert('error', 'Não foi possível salvar a dívida!');
       } else {
-        updateListDebits();
+        handlerRenderAlert('success', 'Dívida salva com sucesso!');
       }
   };
 
@@ -156,6 +198,14 @@ export function DebitForm() {
           </Button>
         </Grid>
       </Grid>
+      {
+        renderAlert.render && (
+          <Alert className={styles.alert} severity="success">
+            <AlertTitle>{renderAlert.severity ? 'Sucesso' : 'Erro'}</AlertTitle>
+            {renderAlert.text}
+          </Alert>
+        )
+      }
     </form>
   )
 }
