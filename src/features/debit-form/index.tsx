@@ -52,7 +52,7 @@ export function DebitForm() {
           ...renderAlert,
           render: false
         })
-      }, 1800)
+      }, 2400);
     }
   }, [renderAlert]);
 
@@ -86,7 +86,8 @@ export function DebitForm() {
           .trim()
           .replace('R$', '')
           .replaceAll('.', '')
-          .replaceAll(',', '')),
+          .replaceAll(',', '')
+        ),
         debitDate: format(new Date(data.debitDate), 'yyyy-MM-dd')
       }
       const res = await createDebit({...values});
