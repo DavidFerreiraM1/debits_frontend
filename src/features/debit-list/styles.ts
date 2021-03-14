@@ -10,5 +10,11 @@ export const styles = makeStyles((theme) => ({
   },
   textInline: {
     display: 'inline',
+  },
+  alert: {
+    position: 'fixed',
+    top: 0,
+    right: 0,
+    margin: 24
   }
 }))

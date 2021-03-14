@@ -1,8 +1,10 @@
 import React from 'react';
 import LocalAtmIcon from '@material-ui/icons/LocalAtm';
-import { List, ListItem } from '../../components';
+import { List } from '../../components';
 import { useDebitContext } from '../../context/app-context';
 import { IClientUser, IDebit } from '../../core/interfaces';
+import { ListItem } from './item';
+import { formatMoney } from '../../utils/form-data-format';
 
 export function DebitList() {
   const { debits, users } = useDebitContext();
@@ -12,8 +14,8 @@ export function DebitList() {
   }
 
   const [renderCondition, setRenderCondition] = React.useState(false);
+
   React.useEffect(() => {
-    console.log('users e debits', users, debits)
     setRenderCondition(users.length > 0 && debits.length > 0);
   }, [debits, users]);
 
@@ -25,10 +27,12 @@ export function DebitList() {
           return (
             <ListItem
               key={key}
+              user={user}
+              debit={deb}
               icon={<LocalAtmIcon />}
               primaryText={user.name}
-              secondaryText={deb.debitValue.toString()}
-          />
+              secondaryText={formatMoney(deb.debitValue.toString())}
+            />
         )})
       }
     </List>
