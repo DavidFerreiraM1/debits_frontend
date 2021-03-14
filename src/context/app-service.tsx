@@ -15,9 +15,8 @@ export async function getAllUsers(): Promise<IHttpResponse<IClientUser[] | null>
 export async function getAllDebits(): Promise<IHttpResponse<IDebit[] | null>> {
   try {
     const res = await DebitClientApi.get('/');
-    console.log('RES', res);
     return httpResponse<IDebit[]>(true, res.data.data, null);
   } catch (err) {
-    return httpResponse<null>(true, null, err);
+    return httpResponse<null>(false, null, err);
   }
 }

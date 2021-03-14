@@ -57,7 +57,7 @@ export function DebitForm() {
   }, [renderAlert]);
 
 
-  const { users: contextUsers } = useDebitContext();
+  const { users: contextUsers, updateListDebits } = useDebitContext();
   const [userOptions, setUserOptions] = React.useState<{ label: string, value: number }[]>([]);
 
   const formik = useFormik({
@@ -94,6 +94,7 @@ export function DebitForm() {
         handlerRenderAlert('error', 'Não foi possível salvar a dívida!');
       } else {
         formik.resetForm();
+        updateListDebits();
         handlerRenderAlert('success', 'Dívida salva com sucesso!');
       }
   };

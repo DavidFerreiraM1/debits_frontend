@@ -13,6 +13,7 @@ export function DebitList() {
 
   const [renderCondition, setRenderCondition] = React.useState(false);
   React.useEffect(() => {
+    console.log('users e debits', users, debits)
     setRenderCondition(users.length > 0 && debits.length > 0);
   }, [debits, users]);
 
