@@ -57,7 +57,7 @@ export function DebitForm() {
   }, [renderAlert]);
 
 
-  const { users: contextUsers, updateListDebits } = useDebitContext();
+  const { users: contextUsers } = useDebitContext();
   const [userOptions, setUserOptions] = React.useState<{ label: string, value: number }[]>([]);
 
   const formik = useFormik({
@@ -68,7 +68,6 @@ export function DebitForm() {
       debitDate: new Date(),
     },
     validationSchema: debitFormValidation,
-    isInitialValid: () => true,
     validateOnChange: false,
     onSubmit: (values: any) => {
       postNewDebit({
@@ -78,20 +77,11 @@ export function DebitForm() {
     }
   });
 
-  React.useEffect(() => {
-    if(contextUsers.length > 0) {
-      const options: any = contextUsers.map((user: IClientUser) => {
-        return ({ label: user.name, value: user.id });
-      });
-  
-      setUserOptions(options);
-    }
-  }, [contextUsers]);
-
   const postNewDebit = async (data: IDebit) => {
       const values: IDebit = {
         ...data,
-        debitValue: parseFloat(data.debitValue
+        debitValue: parseFloat(
+          data.debitValue
           .toString()
           .trim()
           .replace('R$', '')
@@ -103,9 +93,20 @@ export function DebitForm() {
       if (!res.success) {
         handlerRenderAlert('error', 'Não foi possível salvar a dívida!');
       } else {
+        formik.resetForm();
         handlerRenderAlert('success', 'Dívida salva com sucesso!');
       }
   };
+
+  React.useEffect(() => {
+    if(contextUsers.length > 0) {
+      const options: any = contextUsers.map((user: IClientUser) => {
+        return ({ label: user.name, value: user.id });
+      });
+  
+      setUserOptions(options);
+    }
+  }, [contextUsers]);
 
   return (
     <form>
