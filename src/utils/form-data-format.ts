@@ -1,13 +1,17 @@
 import Dinero from 'dinero.js';
 
-export function formatMoney(value: number) {
-  console.log('pure value', value);
+export function formatMoney(value: string) {
+  let val = '';
+
   if (!value) {
-    return 0;
+    val = '0';
   }
 
-  const result = Dinero({ amount: value, currency: 'BRL' }).toFormat()
-  
-  console.log('RESULT', result);
-  return parseFloat(result.replace('R$',''));
+  val = value.trim().replace('R$', '').replaceAll('.', '').replaceAll(',', '');
+
+  const treatedValue = Dinero({ amount: parseFloat(val), currency: 'BRL' })
+    .setLocale('pt-BR')
+    .toFormat();
+
+  return treatedValue;
 };
