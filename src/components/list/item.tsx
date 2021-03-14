@@ -1,5 +1,13 @@
 import React from 'react';
-import { ListItem as MuiListItem, ListItemIcon, ListItemText, Typography } from '@material-ui/core';
+import {
+  IconButton,
+  ListItem as MuiListItem,
+  ListItemIcon,
+  ListItemSecondaryAction,
+  ListItemText,
+  Typography
+} from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 import { styles } from './styles';
 
@@ -28,14 +36,22 @@ export function ListItem(props: Props) {
 
   return (
     <MuiListItem>
-        <ListItemIcon>
-          {
-            props.icon
-          }
-        </ListItemIcon>
-        <ListItemText primary={props.primaryText}
-          secondary={renderSecondaryText()}
-        />
-      </MuiListItem>
+      <ListItemIcon>
+        {props.icon}
+      </ListItemIcon>
+      <ListItemText primary={props.primaryText}
+        secondary={renderSecondaryText()}
+      />
+      <ListItemSecondaryAction>
+        <IconButton>
+          <DeleteIcon />
+        </IconButton>
+      </ListItemSecondaryAction>
+      <ListItemSecondaryAction>
+        <IconButton>
+          <DeleteIcon />
+        </IconButton>
+      </ListItemSecondaryAction>
+    </MuiListItem>
   )
 }
