@@ -1,18 +1,50 @@
 import React from 'react';
+
 import { useFormik } from 'formik';
-import { Button, Grid, InputLabel, TextField as MuiTextFiled  } from '@material-ui/core';
+import { Button, FormHelperText, Grid, InputLabel, TextField as MuiTextFiled  } from '@material-ui/core';
 import AutoComplete from '@material-ui/lab/Autocomplete';
+
+import 'date-fns';
+import format from "date-fns/format";
+import DateFnsUtils from '@date-io/date-fns';
+import brlocale from 'date-fns/locale/pt-BR';
+
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+import { KeyboardDatePicker } from '@material-ui/pickers';
 
 import { useDebitContext } from '../../context/app-context';
 import { IClientUser, IDebit } from '../../core/interfaces';
 import { createDebit } from './service';
 import { formatMoney } from '../../utils/form-data-format';
+import { debitFormValidation } from './validation';
+
+class BrLocalizeUtil extends DateFnsUtils {
+  getDatePickerHeaderText(date: any) {
+    return format(date, "d MMM yyyy", { locale: this.locale });
+  }
+}
 
 export function DebitForm() {
   const { users: contextUsers, updateListDebits } = useDebitContext();
-
-  const [user, setUser] = React.useState<{ label: string, value: number }>({ label: '', value: 0 });
   const [userOptions, setUserOptions] = React.useState<{ label: string, value: number }[]>([]);
+
+  const formik = useFormik({
+    initialValues: {
+      user: { label: '', value: 0 },
+      reason: '',
+      debitValue: 'R$ 0,00',
+      debitDate: new Date(),
+    },
+    validationSchema: debitFormValidation,
+    isInitialValid: () => true,
+    validateOnChange: false,
+    onSubmit: (values: any) => {
+      postNewDebit({
+        ...values,
+        userId: values.user.value,
+      });
+    }
+  });
 
   React.useEffect(() => {
     if(contextUsers.length > 0) {
@@ -25,29 +57,13 @@ export function DebitForm() {
   }, [contextUsers]);
 
   const postNewDebit = async (data: IDebit) => {
-    const { value } = user;
-      const res = await createDebit({
-        ...data,
-        userId: value
-      });
-
+      const res = await createDebit({...data});
       if (!res.success) {
         console.log('deu ruim');
       } else {
         updateListDebits();
       }
   };
-
-  const formik = useFormik({
-    initialValues: {
-      reason: '',
-      debitValue: 24568,
-      debitData: '',
-    },
-    onSubmit: (v) => {
-      console.log('SUBMIT', v);
-    }
-  });
 
   return (
     <form>
@@ -58,11 +74,26 @@ export function DebitForm() {
             id="users"
             options={userOptions}
             getOptionLabel={(opt) => opt.label}
-            onChange={(event, { label, value }: any) => setUser({ label, value })}
+            getOptionSelected={(opt, val) => opt.value === val.value}
+            onChange={(event, param: any) => {
+              if (!param) {
+                formik.setValues({
+                  ...formik.values,
+                  user: { label: '', value: 0 }
+                });
+              } else {
+                formik.setValues({
+                  ...formik.values,
+                  user: { label: param.label, value: param.value }
+                });
+              }
+            }}
+            value={formik.values.user}
             renderInput={
-              (params) => <MuiTextFiled {...params} value={user} variant="outlined" fullWidth />
+              (params) => <MuiTextFiled {...params} variant="outlined" fullWidth />
             }
           />
+          <FormHelperText id="user-errors">{formik.errors.user?.label}</FormHelperText>
         </Grid>
         <Grid item xs={12}>
         <InputLabel>Motivo</InputLabel>
@@ -74,35 +105,55 @@ export function DebitForm() {
             value={formik.values.reason}
             onChange={formik.handleChange}
           />
+          <FormHelperText id="reason-errors">{formik.errors.reason}</FormHelperText>
         </Grid>
         <Grid item xs={6}>
           <InputLabel>Valor</InputLabel>
           <MuiTextFiled
             fullWidth
-            type="number"
             variant="outlined"
             id="debitValue"
             name="debitValue"
             value={formik.values.debitValue}
             onChange={(event) => formik.setValues({
               ...formik.values,
-              debitValue: parseFloat(event.target.value),
+              debitValue: formatMoney(event.target.value),
             })}
           />
+          <FormHelperText id="debitValue-errors">{formik.errors.debitValue}</FormHelperText>
         </Grid>
         <Grid item xs={6}>
+          <MuiPickersUtilsProvider utils={BrLocalizeUtil} locale={brlocale}>
           <InputLabel>Data</InputLabel>
-          <MuiTextFiled
-            fullWidth
-            variant="outlined"
-            id="debitData"
-            name="debitData"
-            value={formik.values.debitData}
-            onChange={formik.handleChange}
-          />
+            <KeyboardDatePicker
+              id="debitDdate"
+              name="debitDate"
+              disableToolbar
+              fullWidth
+              variant="dialog"
+              size="medium"
+              inputVariant="outlined"
+              format="dd/MM/yyyy"
+              margin="none"
+              value={formik.values.debitDate}
+              onChange={(date: any) => {
+                formik.setValues({
+                  ...formik.values,
+                  debitDate: date
+                });
+              }}
+            />
+          </MuiPickersUtilsProvider>
+          <FormHelperText id="debitDate-errors">{formik.errors.debitDate}</FormHelperText>
         </Grid>
         <Grid item xs={6}>
-          <Button type="submit">Ok</Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => formik.handleSubmit()}
+          >
+            submit
+          </Button>
         </Grid>
       </Grid>
     </form>
