@@ -35,14 +35,14 @@ export function DebitContextProvider(props: Props) {
       const users: IClientUser[] = [];
       const debits: IDebit[] = [];
       
-      const { data: resUsers } = await getAllUsers(); 
+      const { data: resUsers } = await getAllUsers();
       if (resUsers) { users.push(...resUsers)}
 
       const { data: resDebits } = await getAllDebits();
       if (resDebits) { debits.push(...resDebits) }
 
 
-      if (users.length > 0 && debits.length > 0) {
+      if (users.length > 0 || debits.length > 0) {
         setValue({
           ...value,
           debits,
