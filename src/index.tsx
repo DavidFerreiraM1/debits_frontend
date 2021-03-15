@@ -3,10 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { DebitContextProvider } from './context/app-context';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <DebitContextProvider>
+      <App />
+    </DebitContextProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

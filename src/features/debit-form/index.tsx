@@ -80,7 +80,9 @@ export function DebitForm() {
         }
       }
     }
+
     if (idDebitToUpdate) {
+
       getDebit();
     } else {
       formik.resetForm();
@@ -126,6 +128,7 @@ export function DebitForm() {
         if (success) {
           formik.resetForm();
           updateListDebits();
+          setIdDebitToUpdate('');
           handlerRenderAlert('success', 'As informações da dívida foram atualizadas!');
         } else {
           handlerRenderAlert('error', 'Não foi possível atualizar os dados da dívida!');
