@@ -9,15 +9,15 @@ interface Props {
 
 const AppContext = React.createContext<{
   debits: IDebit[];
-  users: IClientUser[]; 
-  debitFormValue: {};
-  setDebitFormValue: (value: any) => void,
+  users: IClientUser[];
+  idDebitToUpdate: string;
+  setIdDebitToUpdate: (val: string) => void;
   updateListDebits: () => void,
 }>({
   debits: [],
   users: [],
-  debitFormValue: {},
-  setDebitFormValue: (value: any) => {},
+  idDebitToUpdate: '',
+  setIdDebitToUpdate: (val: string) => {},
   updateListDebits: () => {},
 });
 
@@ -65,20 +65,17 @@ export function DebitContextProvider(props: Props) {
     }
   }
 
-  const [debitFormValue, setDebitFormValue] = React.useState({
-    id: '',
-    user: '',
-    reason: '',
-    debitValue: '',
-    debitData: '',
-  });
+  const [idDebitToUpdate, setIdDebitToUpdate] = React.useState('');
+  const handleIdDebitToUpdate = (val: string) => {
+    setIdDebitToUpdate(val);
+  }
 
   return (
     <AppContext.Provider value={{
       debits: value.debits,
       users: value.users,
-      debitFormValue,
-      setDebitFormValue,
+      setIdDebitToUpdate: handleIdDebitToUpdate,
+      idDebitToUpdate,
       updateListDebits
     }}>
       {props.children}

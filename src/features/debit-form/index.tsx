@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React from 'react';
 
 import { useFormik } from 'formik';
-import { Button, FormHelperText, Grid, InputLabel, TextField as MuiTextFiled  } from '@material-ui/core';
+import { Button, Box, FormHelperText, Grid, InputLabel, TextField as MuiTextFiled  } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import AutoComplete from '@material-ui/lab/Autocomplete';
 
@@ -15,7 +16,7 @@ import { KeyboardDatePicker } from '@material-ui/pickers';
 
 import { useDebitContext } from '../../context/app-context';
 import { IClientUser, IDebit } from '../../core/interfaces';
-import { createDebit } from './service';
+import { createDebit, getDebitById, updateDebit } from './service';
 import { formatMoney } from '../../utils/form-data-format';
 import { debitFormValidation } from './validation';
 import { formStyles } from './styles';
@@ -28,14 +29,18 @@ class BrLocalizeUtil extends DateFnsUtils {
 
 export function DebitForm() {
   const styles = formStyles();
-  const [renderAlert, setRenderAlert] = React.useState({
+  const [renderAlert, setRenderAlert] = React.useState<{
+    severity: 'success' | 'error' | 'info' | 'warning' ,
+    text: string,
+    render: boolean
+  }>({
     severity: 'success',
-    text: 'Dívida cadastrada com sucesso!',
+    text: '',
     render: false
   });
 
   const handlerRenderAlert = (
-    severity: 'success' | 'error',
+    severity: 'success' | 'error' | 'info' | 'warning' ,
     text: string,
   ) => {
     setRenderAlert({
@@ -56,6 +61,32 @@ export function DebitForm() {
     }
   }, [renderAlert]);
 
+  const { idDebitToUpdate, setIdDebitToUpdate, users } = useDebitContext();
+  React.useEffect(() => {
+    const getDebit = async () => {
+      if (idDebitToUpdate) {
+        const { success, data } = await getDebitById(parseInt(idDebitToUpdate));
+        if (data && success) {
+          const getUser = (id: number) => {
+            return users.find((usr: IClientUser) => usr.id === id);
+          };
+          const user: any = getUser(data.userId);
+          formik.setValues({
+            ...data,
+            user: { label: user.name, value: user.id },
+            debitValue: formatMoney(data.debitValue.toString()),
+            debitDate: new Date(data.debitDate),
+          });
+        }
+      }
+    }
+    if (idDebitToUpdate) {
+      getDebit();
+    } else {
+      formik.resetForm();
+    }
+  
+  }, [idDebitToUpdate]);
 
   const { users: contextUsers, updateListDebits } = useDebitContext();
   const [userOptions, setUserOptions] = React.useState<{ label: string, value: number }[]>([]);
@@ -90,15 +121,32 @@ export function DebitForm() {
         ),
         debitDate: format(new Date(data.debitDate), 'yyyy-MM-dd')
       }
-      const res = await createDebit({...values});
-      if (!res.success) {
-        handlerRenderAlert('error', 'Não foi possível salvar a dívida!');
+      if (idDebitToUpdate) {
+        const { success } = await updateDebit(parseInt(idDebitToUpdate), {...values});
+        if (success) {
+          formik.resetForm();
+          updateListDebits();
+          handlerRenderAlert('success', 'As informações da dívida foram atualizadas!');
+        } else {
+          handlerRenderAlert('error', 'Não foi possível atualizar os dados da dívida!');
+        }
       } else {
-        formik.resetForm();
-        updateListDebits();
-        handlerRenderAlert('success', 'Dívida salva com sucesso!');
+        const res = await createDebit({...values});
+        if (!res.success) {
+          handlerRenderAlert('error', 'Não foi possível salvar a dívida!');
+        } else {
+          formik.resetForm();
+          updateListDebits();
+          handlerRenderAlert('success', 'Dívida salva com sucesso!');
+        }
       }
+
   };
+
+  const cancelForm = () => {
+    setIdDebitToUpdate('');
+    formik.resetForm()
+  }
 
   React.useEffect(() => {
     if(contextUsers.length > 0) {
@@ -191,19 +239,36 @@ export function DebitForm() {
           </MuiPickersUtilsProvider>
           <FormHelperText id="debitDate-errors">{formik.errors.debitDate}</FormHelperText>
         </Grid>
-        <Grid item xs={6}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => formik.handleSubmit()}
+        <Grid item xs={12}>
+          <Box
+            component="div"
+            display="flex"
+            justifyContent="flex-end"
           >
-            submit
-          </Button>
+            <Box padding="0 8px">
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={cancelForm}
+              >
+                cancelar
+              </Button>
+            </Box>
+            <Box paddingLeft="8px">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => formik.handleSubmit()}
+                >
+                { idDebitToUpdate ? 'Atualizar' : 'Concluir' }
+              </Button>
+            </Box>
+          </Box>
         </Grid>
       </Grid>
       {
         renderAlert.render && (
-          <Alert className={styles.alert} severity="success">
+          <Alert className={styles.alert} severity={renderAlert.severity}>
             <AlertTitle>{renderAlert.severity ? 'Sucesso' : 'Erro'}</AlertTitle>
             {renderAlert.text}
           </Alert>

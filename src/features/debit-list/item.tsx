@@ -26,15 +26,10 @@ interface Props {
 }
 
 export function ListItem(props: Props) {
-  const { updateListDebits } = useDebitContext();
+  const { updateListDebits, setIdDebitToUpdate } = useDebitContext();
 
   const classes = styles();
   const dialogRef = React.createRef<DialogRefProps>();
-  
-  const editDebit = () => {
-    // lançar dados para o formulário
-  }
-
 
   const [renderAlert, setRenderAlert] = React.useState({
     severity: 'success',
@@ -77,6 +72,12 @@ export function ListItem(props: Props) {
     }
   }
 
+  const handleIdDebitUpdate = () => {
+    if (props.debit.id) {
+      setIdDebitToUpdate(props.debit.id?.toString());
+    }
+  }
+
   const renderSecondaryText = () => {
     return props.secondaryText && (
       <React.Fragment>
@@ -94,9 +95,8 @@ export function ListItem(props: Props) {
   return (
     <MuiListItem
       button
-      onClick={() => {
-        // chama edição da dívida
-      }}
+      dense
+      onClick={handleIdDebitUpdate}
     >
       <ListItemIcon>
         {props.icon}
@@ -116,19 +116,21 @@ export function ListItem(props: Props) {
           <DeleteIcon />
         </IconButton>
       </ListItemSecondaryAction>
-      <ModalDialog
-        ref={dialogRef}
-        onConfirm={() => {
-          handlerRemoveDebit();
-        }} />
-        {
-        renderAlert.render && (
-          <Alert className={classes.alert} severity="success">
-            <AlertTitle>{renderAlert.severity ? 'Sucesso' : 'Erro'}</AlertTitle>
-            {renderAlert.text}
-          </Alert>
-        )
-      }
+      <React.Fragment>
+        <ModalDialog
+          ref={dialogRef}
+          onConfirm={() => {
+            handlerRemoveDebit();
+          }} />
+          {
+          renderAlert.render && (
+            <Alert className={classes.alert} severity="success">
+              <AlertTitle>{renderAlert.severity ? 'Sucesso' : 'Erro'}</AlertTitle>
+              {renderAlert.text}
+            </Alert>
+          )
+        }
+      </React.Fragment>
     </MuiListItem>
   )
 }
