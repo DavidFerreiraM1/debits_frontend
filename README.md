@@ -18,7 +18,7 @@ Ao fazer o clone da aplicação crie um arquivo <strong> .env </strong> a partir
 Após o passo anterior, execute os comandos abaixo
 ```
 yarn - Recuperar dependências do projeto
-yarn start - Em outro terminal para abrir um server de desenvolvimento
+yarn start - Excuta um server de desenvolvimento
 ```
 Certifique de ter o backend implementado [aqui](https://github.com/DavidFerreiraM1/debits-backend) rodando localmente para realizar o consumo dos dados.
 
