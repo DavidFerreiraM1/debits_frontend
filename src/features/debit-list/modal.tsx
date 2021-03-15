@@ -19,6 +19,7 @@ function PaperComponent(props: PaperProps) {
 interface OpenFuncParam {
   title: string;
   text: string;
+  action: () => void;
 }
 
 export interface DialogRefProps {
@@ -26,33 +27,35 @@ export interface DialogRefProps {
   close: () => void;
 }
 
-interface Props {
-  onConfirm: () => void;
-}
+interface Props {}
 
 function ModaDialogWithRef(props: Props, ref: React.Ref<DialogRefProps>) {
   const [dialog, setDialog] = React.useState({
     render: false,
     title: '',
     text: '',
-    onConfirm: () => {},
+    action: () => {},
   });
 
 
   const handleClose = () => {
     setDialog({
       ...dialog,
-      render: false
+      render: false,
+      title: '',
+      text: '',
+      action: () => {}
     });
   };
 
   React.useImperativeHandle(ref, () => ({
-    open: ({ title, text }: OpenFuncParam) => {
+    open: ({ title, text, action }: OpenFuncParam) => {
       setDialog({
         ...dialog,
         title,
         text,
-        render: true
+        render: true,
+        action
       });
     },
     close: () => handleClose(),
@@ -82,7 +85,7 @@ function ModaDialogWithRef(props: Props, ref: React.Ref<DialogRefProps>) {
           onClick={
             () => {
               handleClose();
-              props.onConfirm();
+              dialog.action();
             }
           }>
           Confirmar

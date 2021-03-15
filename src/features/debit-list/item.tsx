@@ -11,11 +11,12 @@ import { Alert, AlertTitle } from '@material-ui/lab';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import { styles } from './styles';
-import { DialogRefProps, ModalDialog } from './modal';
+import { DialogRefProps } from './modal';
 import { IClientUser, IDebit } from '../../core/interfaces';
 import { formatMoney } from '../../utils/form-data-format';
 import { RemoveDebit } from './service';
 import { useDebitContext } from '../../context/app-context';
+import { useModalContext } from './modal-context';
 
 interface Props {
   user: IClientUser;
@@ -29,7 +30,6 @@ export function ListItem(props: Props) {
   const { updateListDebits, setIdDebitToUpdate } = useDebitContext();
 
   const classes = styles();
-  const dialogRef = React.createRef<DialogRefProps>();
 
   const [renderAlert, setRenderAlert] = React.useState({
     severity: 'success',
@@ -92,6 +92,8 @@ export function ListItem(props: Props) {
     )
   }
 
+  const { openModal } = useModalContext();
+
   return (
     <MuiListItem
       button
@@ -106,10 +108,11 @@ export function ListItem(props: Props) {
       />
       <ListItemSecondaryAction
         onClick={() => {
-          dialogRef.current?.open({
-            title: 'Confirmar exclusão',
-            text: `Gostaria de confirmar a exclusão da dívida de ${props.user.name} no valor de ${formatMoney(props.debit.debitValue.toString())}?`
-          });
+          openModal(
+            'Confirmar exclusão',
+            `Gostaria de confirmar a exclusão da dívida de ${props.user.name} no valor de ${formatMoney(props.debit.debitValue.toString())}?`,
+            handlerRemoveDebit
+          );
         }}
       >
         <IconButton>
@@ -117,19 +120,14 @@ export function ListItem(props: Props) {
         </IconButton>
       </ListItemSecondaryAction>
       <React.Fragment>
-        <ModalDialog
-          ref={dialogRef}
-          onConfirm={() => {
-            handlerRemoveDebit();
-          }} />
-          {
-          renderAlert.render && (
-            <Alert className={classes.alert} severity="success">
-              <AlertTitle>{renderAlert.severity ? 'Sucesso' : 'Erro'}</AlertTitle>
-              {renderAlert.text}
-            </Alert>
-          )
-        }
+        {
+        renderAlert.render && (
+          <Alert className={classes.alert} severity="success">
+            <AlertTitle>{renderAlert.severity ? 'Sucesso' : 'Erro'}</AlertTitle>
+            {renderAlert.text}
+          </Alert>
+        )
+      }
       </React.Fragment>
     </MuiListItem>
   )
