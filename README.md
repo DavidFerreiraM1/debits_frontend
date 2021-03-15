@@ -1,7 +1,7 @@
 # Debits Web
 
 A aplicação consiste em uma aplicação web que consiste no cadastro de dívidas de uma lista de usuários consumidos de https://jsonplaceholder.typicode.com,
-Um dos objetivos da aplicação também consiste em assegurar que o desenvolvedor responsável possui conhecimentos e habilidades para o bom desenvolvimento de uma aplicação web com ReactJs<br />
+um dos objetivos da aplicação também consiste em assegurar que o desenvolvedor responsável possui conhecimentos e habilidades para o bom desenvolvimento de uma aplicação web com ReactJs<br />
 
 ## Importante
 A presente aplicação necessita de fazer consumo de uma api que deverá ser executada localmente. [Clique aqui](https://github.com/DavidFerreiraM1/debits-backend) para navegar até o repositório da mesma.
