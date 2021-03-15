@@ -7,16 +7,15 @@ import {
   ListItemText,
   Typography
 } from '@material-ui/core';
-import { Alert, AlertTitle } from '@material-ui/lab';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import { styles } from './styles';
-import { DialogRefProps } from './modal';
 import { IClientUser, IDebit } from '../../core/interfaces';
 import { formatMoney } from '../../utils/form-data-format';
 import { RemoveDebit } from './service';
 import { useDebitContext } from '../../context/app-context';
 import { useModalContext } from './modal-context';
+import { useAlertContext } from './alert-context';
 
 interface Props {
   user: IClientUser;
@@ -27,37 +26,12 @@ interface Props {
 }
 
 export function ListItem(props: Props) {
+
+  const { openModal } = useModalContext();
+  const { handleRenderAlert } = useAlertContext();
+
   const { updateListDebits, setIdDebitToUpdate } = useDebitContext();
-
   const classes = styles();
-
-  const [renderAlert, setRenderAlert] = React.useState({
-    severity: 'success',
-    text: '',
-    render: false
-  });
-
-  const handleRenderAlert = (
-    severity: 'success' | 'error',
-    text: string,
-  ) => {
-    setRenderAlert({
-      severity,
-      text,
-      render: true
-    });
-  }
-
-  React.useEffect(() => {
-    if (renderAlert.render) {
-      setTimeout(() => {
-        setRenderAlert({
-          ...renderAlert,
-          render: false
-        })
-      }, 2400);
-    }
-  }, [renderAlert]);
 
   const handlerRemoveDebit = async () => {
     const { id } = props.debit;
@@ -92,8 +66,6 @@ export function ListItem(props: Props) {
     )
   }
 
-  const { openModal } = useModalContext();
-
   return (
     <MuiListItem
       button
@@ -119,16 +91,6 @@ export function ListItem(props: Props) {
           <DeleteIcon />
         </IconButton>
       </ListItemSecondaryAction>
-      <React.Fragment>
-        {
-        renderAlert.render && (
-          <Alert className={classes.alert} severity="success">
-            <AlertTitle>{renderAlert.severity ? 'Sucesso' : 'Erro'}</AlertTitle>
-            {renderAlert.text}
-          </Alert>
-        )
-      }
-      </React.Fragment>
     </MuiListItem>
   )
 }

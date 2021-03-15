@@ -6,6 +6,7 @@ import { IClientUser, IDebit } from '../../core/interfaces';
 import { ListItem } from './item';
 import { formatMoney } from '../../utils/form-data-format';
 import { ModalContextProvider } from './modal-context';
+import { AlertContextProvider } from './alert-context';
 
 export function DebitList() {
   const { debits, users } = useDebitContext();
@@ -21,22 +22,24 @@ export function DebitList() {
   }, [debits, users]);
 
   return (
-    <ModalContextProvider>
-      <List textSubHeader="Devedores">
-        { renderCondition && debits.map((deb: IDebit, key) => {
+    <AlertContextProvider>
+      <ModalContextProvider>
+        <List textSubHeader="Devedores">
+          { renderCondition && debits.map((deb: IDebit, key) => {
             const user: any = getUser(deb.userId);
             return (
-              <ListItem
+                <ListItem
                 key={key}
                 user={user}
                 debit={deb}
                 icon={<LocalAtmIcon />}
                 primaryText={user.name}
                 secondaryText={formatMoney(deb.debitValue.toString())}
-              />
-          )})
-        }
-      </List>
-    </ModalContextProvider>
+                />
+                )})
+              }
+        </List>
+      </ModalContextProvider>
+    </AlertContextProvider>
   );
 }
