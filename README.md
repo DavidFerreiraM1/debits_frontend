@@ -24,7 +24,7 @@ Certifique de ter o backend implementado [aqui](https://github.com/DavidFerreira
 
 ## Sobre o App
 
-A aplicação permite o cadastro de dívidas, atualização de dados e exclusão dos dados das dívidas cadastrado. A aplicação também consome dados da api pública https://jsonplaceholder.typicode.com, diretamente na rota de busca da listagem de usuários.
+A aplicação permite o cadastro de dívidas, atualização de dados e exclusão dos dados das dívidas cadastrado. A aplicação também consome dados da api pública https://jsonplaceholder.typicode.com, diretamente na rota de busca da listagem de usuários. A aplicação web também possui comportamento responsivo!
 
 ## Autor
 
